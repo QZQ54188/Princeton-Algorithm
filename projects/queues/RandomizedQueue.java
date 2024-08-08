@@ -1,9 +1,3 @@
-/* *****************************************************************************
- *  Name:
- *  Date:
- *  Description:
- **************************************************************************** */
-
 import edu.princeton.cs.algs4.StdRandom;
 
 import java.util.Iterator;
@@ -13,15 +7,13 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private Item[] array;
     private int size;
-    private int capacity;
-    private int originalSize = 8;
     private double ratio = 0.25;
+
 
     // construct an empty randomized queue
     public RandomizedQueue() {
-        array = (Item[]) new Object[originalSize];
+        array = (Item[]) new Object[10];
         size = 0;
-        capacity = originalSize;
     }
 
     // is the randomized queue empty?
@@ -34,21 +26,21 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         return size;
     }
 
-    private void resize(int newSize) {
-        Item[] newArray = (Item[]) new Object[newSize];
+    private void resize(int capacity) {
+        Item[] temp = (Item[]) new Object[capacity];
         for (int i = 0; i < size; i++) {
-            newArray[i] = array[i];
+            temp[i] = array[i];
         }
-        array = newArray;
-        capacity = newSize;
+        array = temp;
     }
+
     // add the item
     public void enqueue(Item item) {
         if (item == null) {
-            throw new IllegalArgumentException("cannot add null into a randomizedQueue");
+            throw new IllegalArgumentException("cannot add null into a randomizedQueue.");
         }
-        if (size == capacity) {
-            resize(capacity * 2);
+        if (size == array.length) {
+            resize(array.length * 2);
         }
         array[size++] = item;
     }
@@ -58,15 +50,15 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (isEmpty()) {
             throw new NoSuchElementException("the queue is empty");
         }
-        int idx = StdRandom.uniform(size);
-        Item retValue = array[idx];
-        array[idx] = array[size - 1];
+        int index = StdRandom.uniformInt(size);
+        Item Value = array[index];
+        array[index] = array[size - 1];
         array[size - 1] = null;
         size--;
-        if (size > 0 && (double)size / capacity <= ratio) {
-            resize(capacity / 2);
+        if (size > 0 && ratio >= (double) size / array.length) {
+            resize(array.length / 2);
         }
-        return retValue;
+        return Value;
     }
 
     // return a random item (but do not remove it)
@@ -74,19 +66,25 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (isEmpty()) {
             throw new NoSuchElementException("the queue is empty");
         }
-        int idx = StdRandom.uniform(size);
+        int idx = StdRandom.uniformInt(size);
         return array[idx];
     }
 
+    // return an independent iterator over items in random order
+    public Iterator<Item> iterator() {
+        return new RandomizedQueueIterator();
+    }
+
     private class RandomizedQueueIterator implements Iterator<Item> {
-        private Item[] copyArray;
+        private Item[] copy = (Item[]) new Object[10];
         private int remain;
+
         public RandomizedQueueIterator() {
-            copyArray = (Item[]) new Object[size];
+            copy = (Item[]) new Object[size];
             for (int i = 0; i < size; i++) {
-                copyArray[i] = array[i];
+                copy[i] = array[i];
             }
-            StdRandom.shuffle(copyArray);
+            StdRandom.shuffle(copy);
             remain = size;
         }
 
@@ -95,7 +93,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             if (remain == 0) {
                 throw new NoSuchElementException();
             }
-            return copyArray[--remain];
+            return copy[--remain];
         }
 
         @Override
@@ -107,10 +105,6 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         public void remove() {
             throw new UnsupportedOperationException();
         }
-    }
-    // return an independent iterator over items in random order
-    public Iterator<Item> iterator() {
-        return new RandomizedQueueIterator();
     }
 
     // unit testing (required)
@@ -136,6 +130,4 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         }
 
     }
-
 }
-

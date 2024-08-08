@@ -1,38 +1,19 @@
-/* *****************************************************************************
- *  Name: FlyingPig
- *  Date: 2020.9.21
- *  Description: deque implemented based on linked-list
- **************************************************************************** */
-
 import java.util.Iterator;
 import java.util.NoSuchElementException;
 
 public class Deque<Item> implements Iterable<Item> {
 
-    private class Node {
-        Item value;
-        Node next;
-        Node pre;
-        public Node() {
-            value = null;
-            next = null;
-            pre = null;
-        }
-        public Node(Item value, Node pre, Node next) {
-            this.value = value;
-            this.pre = pre;
-            this.next = next;
-        }
-    }
-
-    private Node guard;
+    private Item[] array;
     private int size;
+    private int front;
+    private int back;
+
     // construct an empty deque
     public Deque() {
-        guard = new Node();
-        guard.pre = guard;
-        guard.next = guard;
+        array = (Item[]) new Object[10];
         size = 0;
+        front = 0;
+        back = 0;
     }
 
     // is the deque empty?
@@ -45,103 +26,118 @@ public class Deque<Item> implements Iterable<Item> {
         return size;
     }
 
+    private void resize(int capacity) {
+        Item[] temp = (Item[]) new Object[capacity];
+        for (int i = 0; i < size; i++) {
+            temp[i] = array[(front + i) % array.length];
+        }
+        array = temp;
+        front = 0;
+        back = size;
+    }
+
     // add the item to the front
     public void addFirst(Item item) {
         if (item == null) {
-            throw new IllegalArgumentException("can not add null into the deque");
+            throw new IllegalArgumentException("can not add null into the deque.");
         }
-        Node first = new Node(item, guard, guard.next);
-        guard.next.pre = first;
-        guard.next = first;
+        if (size == array.length) {
+            resize(array.length * 2);
+        }
+        front = (front - 1 + array.length) % array.length;
+        array[front] = item;
         size++;
     }
 
     // add the item to the back
     public void addLast(Item item) {
         if (item == null) {
-            throw new IllegalArgumentException("can not add null into the deque");
+            throw new IllegalArgumentException("can not add null into the deque.");
         }
-        Node last = new Node(item, guard.pre, guard);
-        guard.pre.next = last;
-        guard.pre = last;
+        if (size == array.length) {
+            resize(array.length * 2);
+        }
+        array[back] = item;
+        back = (back + 1) % array.length;
         size++;
     }
 
     // remove and return the item from the front
     public Item removeFirst() {
-        if (size == 0) {
-            throw new NoSuchElementException("can not remove value from an empty deque");
+        if (isEmpty()) {
+            throw new NoSuchElementException("Deque is empty.");
         }
-        Item retValue = guard.next.value;
-        guard.next.next.pre = guard;
-        guard.next = guard.next.next;
+        Item item = array[front];
+        array[front] = null;
+        front = (front + 1) % array.length;
         size--;
-        return retValue;
+        if (size > 0 && size == array.length / 4) {
+            resize(array.length / 2);
+        }
+        return item;
     }
 
     // remove and return the item from the back
     public Item removeLast() {
-        if (size == 0) {
-            throw new NoSuchElementException("can not remove value from an empty deque");
+        if (isEmpty()) {
+            throw new NoSuchElementException("Deque is empty.");
         }
-        Item retValue = guard.pre.value;
-        guard.pre.pre.next = guard;
-        guard.pre = guard.pre.pre;
+        back = (back - 1 + array.length) % array.length;
+        Item item = array[back];
+        array[back] = null;
         size--;
-        return retValue;
+        if (size > 0 && size == array.length / 4) {
+            resize(array.length / 2);
+        }
+        return item;
     }
 
-    private class dequeIterator implements Iterator<Item> {
-        private Node ptr;
-        private int remains;
-        public dequeIterator() {
-            ptr = guard.next;
-            remains = size;
-        }
-
-        @Override
-        public Item next() {
-            if (remains == 0) {
-                throw new NoSuchElementException();
-            }
-            Item retValue = ptr.value;
-            ptr = ptr.next;
-            remains--;
-            return retValue;
-        }
-
-        @Override
-        public boolean hasNext() {
-            return remains > 0;
-        }
-
-        @Override
-        public void remove() {
-            throw new UnsupportedOperationException("this deque implementation doesn't support remove in iterator");
-        }
-    }
     // return an iterator over items in order from front to back
     public Iterator<Item> iterator() {
-        return new dequeIterator();
+        return new Iterator<Item>() {
+            private int cur = front;
+            private int count = 0;
+
+            public boolean hasNext() {
+                return count < size;
+            }
+
+            public Item next() {
+                if (!hasNext()) {
+                    throw new NoSuchElementException();
+                }
+                Item item = array[cur];
+                cur = (cur + 1) % array.length;
+                count++;
+                return item;
+            }
+
+            @Override
+            public void remove() {
+                throw new UnsupportedOperationException(
+                        "this deque implementation doesn't support remove in iterator");
+            }
+        };
     }
 
     // unit testing (required)
     public static void main(String[] args) {
-        Deque<String> dq = new Deque<>();
-        for (int i = 0; i < 5; i++) {
-            dq.addFirst("A" + i);
+        Deque<Integer> deque = new Deque<>();
+        deque.addFirst(1);
+        deque.addLast(2);
+        deque.addFirst(0);
+        deque.addLast(3);
+
+        System.out.println("Deque size: " + deque.size()); // 输出 4
+        System.out.println("Deque is empty: " + deque.isEmpty()); // 输出 false
+
+        System.out.println("Remove first: " + deque.removeFirst()); // 输出 0
+        System.out.println("Remove last: " + deque.removeLast()); // 输出 3
+
+        for (int item : deque) {
+            System.out.print(item + " "); // 输出 1 2
         }
-        for (int i = 0; i < 5; i++) {
-            dq.addLast("B" + i);
-        }
-        for (String s : dq) {
-            System.out.println(s);
-        }
-        System.out.println("dq has " + dq.size() + " elements in total");
-        for (int i = 0; i < 10; i++) {
-            System.out.println(dq.removeFirst());
-            System.out.println(dq.removeLast());
-            System.out.println(dq.size());
-        }
+        System.out.println();
     }
+
 }

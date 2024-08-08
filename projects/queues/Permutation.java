@@ -1,9 +1,3 @@
-/* *****************************************************************************
- *  Name:
- *  Date:
- *  Description:
- **************************************************************************** */
-
 import edu.princeton.cs.algs4.StdIn;
 
 public class Permutation {
@@ -11,13 +5,14 @@ public class Permutation {
         if (args.length != 1) {
             System.out.println("Usage: java Permutation number");
         }
-        RandomizedQueue<String> rq = new RandomizedQueue<>();
+
+        RandomizedQueue<String> randomizedQueue = new RandomizedQueue<>();
         while (!StdIn.isEmpty()) {
-            rq.enqueue(StdIn.readString());
+            randomizedQueue.enqueue(StdIn.readString());
         }
         int k = Integer.parseInt(args[0]);
         for (int i = 0; i < k; i++) {
-            System.out.println(rq.dequeue());
+            System.out.println(randomizedQueue.dequeue());
         }
     }
 }
