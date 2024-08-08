@@ -1,26 +1,21 @@
-/* *****************************************************************************
- *  Name:              Alan Turing
- *  Coursera User ID:  123456
- *  Last modified:     1/1/2019
- **************************************************************************** */
-
 import edu.princeton.cs.algs4.StdRandom;
 import edu.princeton.cs.algs4.StdStats;
 
 public class PercolationStats {
-    private double[] percoThreshold;
-    private double area;
+
     private int gridWidth;
     private int T;
+    private double[] percoThreshold;
+    private double area;
 
-    /** perform independent trials on an n-by-n grid. */
+    // perform independent trials on an n-by-n grid
     public PercolationStats(int n, int trials) {
-        if (n <= 0 || trials <= 0){
+        if (n <= 0 || trials <= 0) {
             throw new IllegalArgumentException();
         }
         gridWidth = n;
-        area = n * n;
         T = trials;
+        area = n * n;
         percoThreshold = new double[T];
         for (int i = 0; i < T; i++) {
             Percolation perc = new Percolation(n);
@@ -33,24 +28,24 @@ public class PercolationStats {
         }
     }
 
-    /** sample mean of percolation threshold. */
+    // sample mean of percolation threshold
     public double mean() {
         return StdStats.mean(percoThreshold);
     }
 
-    /** sample standard deviation of percolation threshold. */
+    // sample standard deviation of percolation threshold
     public double stddev() {
         return StdStats.stddev(percoThreshold);
     }
 
-    /** low endpoint of 95% confidence interval. */
+    // low endpoint of 95% confidence interval
     public double confidenceLo() {
         double pBar = mean();
         double s = stddev();
         return pBar - 1.96 * s / Math.sqrt(T);
     }
 
-    /** high endpoint of 95% confidence interval. */
+    // high endpoint of 95% confidence interval
     public double confidenceHi() {
         double pBar = mean();
         double s = stddev();

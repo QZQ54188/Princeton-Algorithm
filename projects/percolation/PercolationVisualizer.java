@@ -7,7 +7,7 @@
  *  From that file, it
  *
  *    - Reads the grid size n of the percolation system.
- *    - Creates an n-by-n grid of sites (intially all blocked)
+ *    - Creates an n-by-n grid of sites (initially all blocked)
  *    - Reads in a sequence of sites (row i, column j) to open.
  *
  *  After each site is opened, it draws full sites in light blue,
@@ -23,7 +23,7 @@ import java.awt.Font;
 
 public class PercolationVisualizer {
 
-    // delay in miliseconds (controls animation speed)
+    // delay in milliseconds (controls animation speed)
     private static final int DELAY = 100;
 
     // draw n-by-n percolation system
