@@ -1,31 +1,28 @@
-/* *****************************************************************************
- *  Name:
- *  Date:
- *  Description:
- **************************************************************************** */
-
+import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.Point2D;
 import edu.princeton.cs.algs4.RectHV;
-import edu.princeton.cs.algs4.SET;
+import edu.princeton.cs.algs4.StdDraw;
 
 import java.util.ArrayList;
-import java.util.List;
+import java.util.TreeSet;
 
 public class PointSET {
-    private SET<Point2D> points;
+
+    private TreeSet<Point2D> treeSet;
+
     // construct an empty set of points
     public PointSET() {
-        points = new SET<>();
+        treeSet = new TreeSet<>();
     }
 
     // is the set empty?
     public boolean isEmpty() {
-        return points.isEmpty();
+        return treeSet.isEmpty();
     }
 
     // number of points in the set
     public int size() {
-        return points.size();
+        return treeSet.size();
     }
 
     // add the point to the set (if it is not already in the set)
@@ -33,7 +30,7 @@ public class PointSET {
         if (p == null) {
             throw new IllegalArgumentException();
         }
-        points.add(p);
+        treeSet.add(p);
     }
 
     // does the set contain point p?
@@ -41,43 +38,60 @@ public class PointSET {
         if (p == null) {
             throw new IllegalArgumentException();
         }
-        return points.contains(p);
+        return treeSet.contains(p);
     }
 
     // draw all points to standard draw
     public void draw() {
-        for (Point2D point : points) {
-            point.draw();
+        StdDraw.setPenColor(StdDraw.BLACK);
+        for (Point2D p : treeSet) {
+            StdDraw.point(p.x(), p.y());
         }
     }
+
 
     // all points that are inside the rectangle (or on the boundary)
     public Iterable<Point2D> range(RectHV rect) {
         if (rect == null) {
-            throw new IllegalArgumentException("rect is null");
+            throw new IllegalArgumentException();
         }
-        List<Point2D> containedPoints = new ArrayList<>();
-        for (Point2D point : points) {
-            if (rect.contains(point)) {
-                containedPoints.add(point);
+        ArrayList<Point2D> arr = new ArrayList<>();
+        for (Point2D p : treeSet) {
+            if (rect.contains(p)) {
+                arr.add(p);
             }
         }
-        return containedPoints;
+        return arr;
     }
 
     // a nearest neighbor in the set to point p; null if the set is empty
     public Point2D nearest(Point2D p) {
         if (p == null) {
-            throw new IllegalArgumentException("point is null");
+            throw new IllegalArgumentException();
         }
-        Point2D nearestPoint = null;
-        double dist = Double.MAX_VALUE;
-        for (Point2D point : points) {
-            if (p.distanceTo(point) < dist) {
-                nearestPoint = point;
-                dist = p.distanceTo(point);
+        double min = Double.POSITIVE_INFINITY;
+        Point2D res = null;
+        for (Point2D point : treeSet) {
+            double dis = p.distanceSquaredTo(point);
+            if (dis < min) {
+                min = dis;
+                res = point;
             }
         }
-        return nearestPoint;
+        return res;
+    }
+
+
+    public static void main(String[] args) {
+        String filename = args[0];
+        In in = new In(filename);
+        PointSET brute = new PointSET();
+        while (!in.isEmpty()) {
+            double x = in.readDouble();
+            double y = in.readDouble();
+            Point2D p = new Point2D(x, y);
+            brute.insert(p);
+        }
+        brute.draw();
     }
 }
