@@ -2,35 +2,33 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.StdOut;
 
 public class Outcast {
-    private final WordNet wn;
-    // constructor takes a WordNet object
-    public Outcast(WordNet wordnet) {
-        wn = wordnet;
+    private final WordNet wordNet;
+
+
+    public Outcast(WordNet wordnet)         // constructor takes a WordNet object
+    {
+        this.wordNet = wordnet;
     }
 
-    // given an array of WordNet nouns, return an outcast
-    public String outcast(String[] nouns) {
-        int[] distances = new int[nouns.length];
+
+    public String outcast(String[] nouns)   // given an array of WordNet nouns, return an outcast
+    {
+        if (nouns == null) throw new IllegalArgumentException();
+        int maxDist = Integer.MIN_VALUE;
+        int id = -1;
         for (int i = 0; i < nouns.length; i++) {
-            for (int j = 0; j < nouns.length; j++) {
-                if (j == i) {
-                    continue;
-                }
-                distances[i] += wn.distance(nouns[i], nouns[j]);
+            int d = 0;
+            for (int j = 0; j < nouns.length; j++)
+                d += wordNet.distance(nouns[i], nouns[j]);
+            if (d > maxDist) {
+                maxDist = d;
+                id = i;
             }
         }
-        int idx = 0;
-        int maximum = distances[0];
-        for (int i = 1; i < distances.length; i++) {
-            if (distances[i] > maximum) {
-                idx = i;
-                maximum = distances[i];
-            }
-        }
-        return nouns[idx];
+        return nouns[id];
     }
 
-    // client routine
+
     public static void main(String[] args) {
         WordNet wordnet = new WordNet(args[0], args[1]);
         Outcast outcast = new Outcast(wordnet);
