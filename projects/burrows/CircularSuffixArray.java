@@ -1,80 +1,89 @@
-/* *****************************************************************************
- *  Name: FlyingPig
- *  Date: 2021.4.19
- *  Description: CircularSuffixArray data structure for Burrows-Wheeler compression algorithm
- **************************************************************************** */
+import edu.princeton.cs.algs4.StdIn;
+import edu.princeton.cs.algs4.StdOut;
 
 import java.util.Arrays;
 
 public class CircularSuffixArray {
 
-    private final int[] indexes;
-    private final int N;
-    // circular suffix array of s
-    public CircularSuffixArray(String s) {
-        if (s == null) {
-            throw new IllegalArgumentException("null string");
-        }
-        N = s.length();
-        CircularSuffix[] suffixes = new CircularSuffix[N];
-        String text = s + s;
-        for (int i = 0; i < N; i++) {
-            suffixes[i] = new CircularSuffix(text, i);
-        }
-        Arrays.sort(suffixes);
-        indexes = new int[N];
-        for (int i = 0; i < N; i++) {
-            indexes[i] = suffixes[i].index;
-        }
-    }
+    private int size;
+    private int[] index;
+    private String text;
 
-    private static class CircularSuffix implements Comparable<CircularSuffix> {
-        private final String text;
-        private final int index;
 
-        private CircularSuffix(String s, int idx) {
-            text = s;
-            index = idx;
+    // This class is a helper class for sorting loop suffix arrays
+    private class CircularSuffix implements Comparable<CircularSuffix> {
+        // Indicates that the cyclic suffix is at the beginning of the string
+        private int offset;
+
+        CircularSuffix(int i) {
+            offset = i;
         }
 
-        private int length() {
-            return text.length() / 2;
+        @Override
+        public int compareTo(CircularSuffix o) {
+            if (o == this) {
+                return 0;
+            }
+            for (int i = 0; i < size; i++) {
+                if (this.charAt(i) > o.charAt(i)) {
+                    return 1;
+                }
+                else if (this.charAt(i) < o.charAt(i)) {
+                    return -1;
+                }
+            }
+            return 0;
         }
 
         private char charAt(int i) {
-            return text.charAt(index + i);
-        }
-
-        public int compareTo(CircularSuffix that) {
-            if (this == that) return 0;  // optimization
-            int n = Math.min(this.length(), that.length());
-            for (int i = 0; i < n; i++) {
-                if (this.charAt(i) < that.charAt(i)) return -1;
-                if (this.charAt(i) > that.charAt(i)) return +1;
-            }
-            return this.length() - that.length();
+            return text.charAt(offset + i);
         }
     }
 
+    // circular suffix array of s
+    public CircularSuffixArray(String s) {
+        if (s == null) {
+            throw new IllegalArgumentException();
+        }
+        size = s.length();
+        text = s + s;
+        index = new int[size];
+        for (int i = 0; i < size; i++) {
+            index[i] = i;
+        }
+
+        CircularSuffix[] circularSuffixes = new CircularSuffix[size];
+        // Record the index of the cyclic suffix string in the initial string
+        for (int i = 0; i < size; i++) {
+            circularSuffixes[i] = new CircularSuffix(i);
+        }
+        Arrays.sort(circularSuffixes);
+        for (int i = 0; i < size; i++) {
+            index[i] = circularSuffixes[i].offset;
+        }
+    }
+
+
     // length of s
     public int length() {
-        return N;
+        return size;
     }
 
     // returns index of ith sorted suffix
     public int index(int i) {
-        if (i < 0 || i >= N) {
-            throw new IllegalArgumentException("index out of range");
+        if (i < 0 || i >= size) {
+            throw new IllegalArgumentException();
         }
-        return indexes[i];
+        return index[i];
     }
 
     // unit testing (required)
     public static void main(String[] args) {
-        CircularSuffixArray CSA = new CircularSuffixArray("ABRACADABRA!");
-        System.out.println("length of s : " + CSA.length());
-        for (int i = 0; i < CSA.length(); i++) {
-            System.out.println(CSA.index(i));
+        while (!StdIn.isEmpty()) {
+            String s = StdIn.readString();
+            CircularSuffixArray circularSuffixArray = new CircularSuffixArray(s);
+            for (int i = 0; i < circularSuffixArray.length(); i++)
+                StdOut.println(circularSuffixArray.index(i));
         }
     }
 
